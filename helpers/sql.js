@@ -1,12 +1,26 @@
 import { BadRequestError } from '../ExpressError.js'
 
-// THIS NEEDS SOME GREAT DOCUMENTATION.
+/**
+ * @function sqlForPartialUpdate
+ * 
+ * @param  {object} dataToUpdate
+ * @param  {object} jsToSql
+ * 
+ * @returns {object} Returns object with setCols & values keys
+ * 
+ * @example
+ *   sqlForPartialUpdate({ firstName: 'Aliyaah', age: 37 })
+ *   // returns
+ *   {
+ *     setCols: 'first_name'=$1, 'age'=$2,
+ *     values: ['Aliyaah', 37]
+ *   }
+ */
 
 const sqlForPartialUpdate = (dataToUpdate, jsToSql) => {
   const keys = Object.keys(dataToUpdate)
   if (keys.length === 0) throw new BadRequestError('No data')
 
-  // {firstName: 'Aliya', age: 32} => ['"first_name"=$1', '"age"=$2']
   const cols = keys.map((colName, idx) =>
       `"${jsToSql[colName] || colName}"=$${idx + 1}`
   )
