@@ -1,5 +1,5 @@
 {
-  "name": "jobly-solution",
+  "name": "express-jobly",
   "version": "2.0.0",
   "description": "",
   "keywords": [],
@@ -7,6 +7,13 @@
   "license": "ISC",
   "type": "module",
   "exports": "./server.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jr0dd/wyoa-bot.git"
+  },
   "scripts": {
     "start": "node --experimental-vm-modules --no-warnings ./server.js",
     "dev": "nodemon --experimental-vm-modules --no-warnings ./server.js",
@@ -16,6 +23,18 @@
     "testPathIgnorePatterns": [
       "/node_modules/",
       "config.js"
+    ]
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "**/*test*"
+    ],
+    "ext": "css,html,js,json,yaml",
+    "delay": 600
+  },
+  "standard": {
+    "ignore": [
+      "**/*test*"
     ]
   },
   "devDependencies": {
