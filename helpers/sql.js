@@ -3,8 +3,8 @@ import { BadRequestError } from '../ExpressError.js'
 /**
  * @function sqlForPartialUpdate
  * 
- * @param  {object} dataToUpdate
- * @param  {object} jsToSql
+ * @param {object} dataToUpdate
+ * @param {object} jsToSql
  * 
  * @returns {object} Returns object with setCols & values keys
  * 
@@ -12,7 +12,7 @@ import { BadRequestError } from '../ExpressError.js'
  *   sqlForPartialUpdate({ firstName: 'Aliyaah', age: 37 })
  *   // returns
  *   {
- *     setCols: 'first_name'=$1, 'age'=$2,
+ *     setCols: 'first_name=$1, age=$2',
  *     values: ['Aliyaah', 37]
  *   }
  */
