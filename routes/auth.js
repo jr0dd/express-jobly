@@ -1,16 +1,13 @@
-"use strict";
-
 /** Routes for authentication. */
 
-const jsonschema = require("jsonschema");
-
-const User = require("../models/user");
-const express = require("express");
-const router = new express.Router();
-const { createToken } = require("../helpers/tokens");
-const userAuthSchema = require("../schemas/userAuth.json");
-const userRegisterSchema = require("../schemas/userRegister.json");
-const { BadRequestError } = require("../expressError");
+import express from 'express'
+import jsonschema from 'jsonschema'
+import { User } from '../models/user.js'
+import { createToken } from '../helpers/tokens.js'
+import userAuthSchema from '../schemas/userAuth.json' assert { type : 'json' }
+import userRegisterSchema from '../schemas/userRegister.json' assert { type : 'json' }
+import { BadRequestError } from '../ExpressError.js'
+const router = new express.Router()
 
 /** POST /auth/token:  { username, password } => { token }
  *
@@ -19,7 +16,7 @@ const { BadRequestError } = require("../expressError");
  * Authorization required: none
  */
 
-router.post("/token", async function (req, res, next) {
+router.post("/token", async (req, res, next) => {
   try {
     const validator = jsonschema.validate(req.body, userAuthSchema);
     if (!validator.valid) {
@@ -46,7 +43,7 @@ router.post("/token", async function (req, res, next) {
  * Authorization required: none
  */
 
-router.post("/register", async function (req, res, next) {
+router.post("/register", async (req, res, next) => {
   try {
     const validator = jsonschema.validate(req.body, userRegisterSchema);
     if (!validator.valid) {
@@ -62,5 +59,4 @@ router.post("/register", async function (req, res, next) {
   }
 });
 
-
-module.exports = router;
+export { router }

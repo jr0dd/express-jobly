@@ -1,18 +1,19 @@
-const jwt = require("jsonwebtoken");
-const { SECRET_KEY } = require("../config");
+import jwt from 'jsonwebtoken'
+import { SECRET_KEY } from '../config.js'
 
 /** return signed JWT from user data. */
 
-function createToken(user) {
+const createToken = (user) => {
   console.assert(user.isAdmin !== undefined,
-      "createToken passed user without isAdmin property");
+    'createToken passed user without isAdmin property'
+  )
 
-  let payload = {
+  const payload = {
     username: user.username,
-    isAdmin: user.isAdmin || false,
-  };
+    isAdmin: user.isAdmin || false
+  }
 
-  return jwt.sign(payload, SECRET_KEY);
+  return jwt.sign(payload, SECRET_KEY)
 }
 
-module.exports = { createToken };
+export { createToken }
