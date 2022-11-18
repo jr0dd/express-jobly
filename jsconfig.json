@@ -5,8 +5,10 @@
     "moduleResolution": "NodeNext",
     "module": "NodeNext",
     "resolveJsonModule": true,
-    "baseUrl": ".",
-    "paths": {}
+    "baseUrl": "."
+  },
+  "typeAcquisition": {
+    "include": ["jest", "jquery"]
   },
   "exclude": ["node_modules", "**/node_modules/*"]
 }

@@ -102,6 +102,56 @@ describe('GET /companies', () => {
       .set('authorization', `Bearer ${u1Token}`)
     expect(resp.statusCode).toEqual(500)
   })
+
+  // filters
+
+  test('works: all filters', async () => {
+    const resp = await request(app)
+      .get('/companies')
+      .query({ minEmployees: 2, maxEmployees: 3, name: '3' })
+    expect(resp.body).toEqual({
+      companies: [
+        {
+          handle: 'c3',
+          name: 'C3',
+          description: 'Desc3',
+          numEmployees: 3,
+          logoUrl: 'http://c3.img'
+        }
+      ]
+    })
+  })
+
+  test('works: filter minEmployees', async () => {
+    const resp = await request(app)
+      .get('/companies')
+      .query({ minEmployees: 2 })
+    expect(resp.body).toEqual({
+      companies: [
+        {
+          handle: 'c2',
+          name: 'C2',
+          description: 'Desc2',
+          numEmployees: 2,
+          logoUrl: 'http://c2.img'
+        },
+        {
+          handle: 'c3',
+          name: 'C3',
+          description: 'Desc3',
+          numEmployees: 3,
+          logoUrl: 'http://c3.img'
+        }
+      ]
+    })
+  })
+
+  test('bad request if invalid query key', async () => {
+    const resp = await request(app)
+      .get('/companies')
+      .query({ minEmployees: 2, test: 'fail' })
+    expect(resp.statusCode).toEqual(400)
+  })
 })
 
 /** ************************************ GET /companies/:handle */

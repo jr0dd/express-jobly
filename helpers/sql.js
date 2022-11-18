@@ -2,12 +2,12 @@ import { BadRequestError } from '../ExpressError.js'
 
 /**
  * @function sqlForPartialUpdate
- * 
+ *
  * @param {object} dataToUpdate
  * @param {object} jsToSql
- * 
+ *
  * @returns {object} Returns object with setCols & values keys
- * 
+ *
  * @example
  *   sqlForPartialUpdate({ firstName: 'Aliyaah', age: 37 })
  *   // returns

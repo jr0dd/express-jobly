@@ -1,6 +1,6 @@
 /** Shared config for application; can be required many places. */
 
-import colors from 'colors'
+import chalk from 'chalk'
 import * as dotenv from 'dotenv'
 dotenv.config()
 
@@ -20,12 +20,12 @@ const getDatabaseUri = () => {
 // WJB: Evaluate in 2021 if this should be increased to 13 for non-test use
 const BCRYPT_WORK_FACTOR = process.env.NODE_ENV === 'test' ? 1 : 12
 
-console.log('Jobly Config:'.green)
-console.log('SECRET_KEY:'.yellow, SECRET_KEY)
-console.log('PORT:'.yellow, PORT.toString())
-console.log('BCRYPT_WORK_FACTOR'.yellow, BCRYPT_WORK_FACTOR)
-console.log('Database:'.yellow, getDatabaseUri())
-console.log('---')
+console.log(chalk.green('Jobly Config:'))
+console.log(chalk.yellow('SECRET_KEY:'), SECRET_KEY)
+console.log(chalk.yellow('PORT:'), PORT.toString())
+console.log(chalk.yellow('BCRYPT_WORK_FACTOR'), BCRYPT_WORK_FACTOR)
+console.log(chalk.yellow('Database:'), getDatabaseUri())
+console.log(chalk.green('---'))
 
 export {
   SECRET_KEY,

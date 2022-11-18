@@ -46,16 +46,48 @@ class Company {
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
-  static async findAll () {
-    const companiesRes = await db.query(
-          `SELECT handle,
-                  name,
-                  description,
-                  num_employees AS "numEmployees",
-                  logo_url AS "logoUrl"
-           FROM companies
-           ORDER BY name`)
-    return companiesRes.rows
+  static async findAll (filters = {}) {
+    let query = `
+      SELECT handle,
+        name,
+        description,
+        num_employees AS "numEmployees",
+        logo_url AS "logoUrl"
+      FROM companies`
+
+    const exp = []
+    const values = []
+    const { minEmployees, maxEmployees, name } = filters
+
+    // check if min is greater than max
+    if (minEmployees > maxEmployees) {
+      throw new BadRequestError('Min entered is greater than max')
+    }
+
+    // add expressions and values
+    if (minEmployees !== undefined) {
+      values.push(minEmployees)
+      exp.push(`num_employees >= $${values.length}`)
+    }
+
+    if (maxEmployees !== undefined) {
+      values.push(maxEmployees)
+      exp.push(`num_employees <= $${values.length}`)
+    }
+
+    // seaech partials and case insensitive
+    if (name) {
+      values.push(`%${name}%`)
+      exp.push(`name ILIKE $${values.length}`)
+    }
+
+    if (exp.length > 0) {
+      query += ' WHERE ' + exp.join(' AND ')
+    }
+
+    query += ' ORDER BY name'
+    const result = await db.query(query, values)
+    return result.rows
   }
 
   /** Given a company handle, return data about company.

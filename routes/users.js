@@ -10,7 +10,6 @@ import userNewSchema from '../schemas/userNew.json' assert { type : 'json' }
 import userUpdateSchema from '../schemas/userUpdate.json' assert { type : 'json' }
 const router = express.Router()
 
-
 /** POST / { user }  => { user, token }
  *
  * Adds a new user. This is not the registration endpoint --- instead, this is
@@ -23,22 +22,21 @@ const router = express.Router()
  * Authorization required: login
  **/
 
-router.post("/", ensureLoggedIn, async (req, res, next) => {
+router.post('/', ensureLoggedIn, async (req, res, next) => {
   try {
-    const validator = jsonschema.validate(req.body, userNewSchema);
+    const validator = jsonschema.validate(req.body, userNewSchema)
     if (!validator.valid) {
-      const errs = validator.errors.map(e => e.stack);
-      throw new BadRequestError(errs);
+      const errs = validator.errors.map(e => e.stack)
+      throw new BadRequestError(errs)
     }
 
-    const user = await User.register(req.body);
-    const token = createToken(user);
-    return res.status(201).json({ user, token });
+    const user = await User.register(req.body)
+    const token = createToken(user)
+    return res.status(201).json({ user, token })
   } catch (err) {
-    return next(err);
+    return next(err)
   }
-});
-
+})
 
 /** GET / => { users: [ {username, firstName, lastName, email }, ... ] }
  *
@@ -47,15 +45,14 @@ router.post("/", ensureLoggedIn, async (req, res, next) => {
  * Authorization required: login
  **/
 
-router.get("/", ensureLoggedIn, async (req, res, next) => {
+router.get('/', ensureLoggedIn, async (req, res, next) => {
   try {
-    const users = await User.findAll();
-    return res.json({ users });
+    const users = await User.findAll()
+    return res.json({ users })
   } catch (err) {
-    return next(err);
+    return next(err)
   }
-});
-
+})
 
 /** GET /[username] => { user }
  *
@@ -64,15 +61,14 @@ router.get("/", ensureLoggedIn, async (req, res, next) => {
  * Authorization required: login
  **/
 
-router.get("/:username", ensureLoggedIn, async (req, res, next) => {
+router.get('/:username', ensureLoggedIn, async (req, res, next) => {
   try {
-    const user = await User.get(req.params.username);
-    return res.json({ user });
+    const user = await User.get(req.params.username)
+    return res.json({ user })
   } catch (err) {
-    return next(err);
+    return next(err)
   }
-});
-
+})
 
 /** PATCH /[username] { user } => { user }
  *
@@ -84,34 +80,33 @@ router.get("/:username", ensureLoggedIn, async (req, res, next) => {
  * Authorization required: login
  **/
 
-router.patch("/:username", ensureLoggedIn, async (req, res, next) => {
+router.patch('/:username', ensureLoggedIn, async (req, res, next) => {
   try {
-    const validator = jsonschema.validate(req.body, userUpdateSchema);
+    const validator = jsonschema.validate(req.body, userUpdateSchema)
     if (!validator.valid) {
-      const errs = validator.errors.map(e => e.stack);
-      throw new BadRequestError(errs);
+      const errs = validator.errors.map(e => e.stack)
+      throw new BadRequestError(errs)
     }
 
-    const user = await User.update(req.params.username, req.body);
-    return res.json({ user });
+    const user = await User.update(req.params.username, req.body)
+    return res.json({ user })
   } catch (err) {
-    return next(err);
+    return next(err)
   }
-});
-
+})
 
 /** DELETE /[username]  =>  { deleted: username }
  *
  * Authorization required: login
  **/
 
-router.delete("/:username", ensureLoggedIn, async (req, res, next) => {
+router.delete('/:username', ensureLoggedIn, async (req, res, next) => {
   try {
-    await User.remove(req.params.username);
-    return res.json({ deleted: req.params.username });
+    await User.remove(req.params.username)
+    return res.json({ deleted: req.params.username })
   } catch (err) {
-    return next(err);
+    return next(err)
   }
-});
+})
 
 export { router }
