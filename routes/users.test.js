@@ -357,7 +357,7 @@ describe('DELETE /users/:username', () => {
   test('unauth for others', async () => {
     const resp = await request(app)
       .delete('/users/u1')
-      .set("authorization", `Bearer ${u2Token}`)
+      .set('authorization', `Bearer ${u2Token}`)
     expect(resp.statusCode).toEqual(401)
   })
 
