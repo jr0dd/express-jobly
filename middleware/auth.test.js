@@ -1,7 +1,12 @@
 import jwt from 'jsonwebtoken'
 import { UnauthorizedError } from '../ExpressError.js'
-import { authenticateJWT, ensureLoggedIn } from './auth.js'
-import { SECRET_KEY } from '../config'
+import { SECRET_KEY } from '../config.js'
+import {
+  authenticateJWT,
+  ensureLoggedIn,
+  ensureAdmin,
+  ensureSelfOrAdmin
+} from './auth.js'
 
 const testJwt = jwt.sign({ username: 'test', isAdmin: false }, SECRET_KEY)
 const badJwt = jwt.sign({ username: 'test', isAdmin: false }, 'wrong')
@@ -68,5 +73,79 @@ describe('ensureLoggedIn', () => {
       expect(err instanceof UnauthorizedError).toBeTruthy()
     }
     ensureLoggedIn(req, res, next)
+  })
+})
+
+describe('ensureAdmin', () => {
+  test('works', () => {
+    expect.assertions(1)
+    const req = {}
+    const res = { locals: { user: { username: 'test', isAdmin: true } } }
+    const next = (err) => {
+      expect(err).toBeFalsy()
+    }
+    ensureAdmin(req, res, next)
+  })
+
+  test('unauth if not admin', () => {
+    expect.assertions(1)
+    const req = {}
+    const res = { locals: { user: { username: 'test', isAdmin: false } } }
+    const next = (err) => {
+      expect(err instanceof UnauthorizedError).toBeTruthy()
+    }
+    ensureAdmin(req, res, next)
+  })
+
+  test('unauth if anon', () => {
+    expect.assertions(1)
+    const req = {}
+    const res = { locals: {} }
+    const next = (err) => {
+      expect(err instanceof UnauthorizedError).toBeTruthy()
+    }
+    ensureAdmin(req, res, next)
+  })
+})
+
+describe('ensureSelfOrAdmin', () => {
+  test('works: as admin', () => {
+    expect.assertions(1)
+    const req = { params: { username: 'test' } }
+    const res = { locals: { user: { username: 'admin', isAdmin: true } } }
+    const next = (err) => {
+      expect(err).toBeFalsy()
+    }
+    ensureSelfOrAdmin(req, res, next)
+  })
+
+  test('works: as self', () => {
+    expect.assertions(1)
+    const req = { params: { username: 'test' } }
+    const res = { locals: { user: { username: 'test', isAdmin: false } } }
+    const next = (err) => {
+      expect(err).toBeFalsy()
+    }
+    ensureSelfOrAdmin(req, res, next)
+  })
+
+  test('unauth on mismatch', () => {
+    expect.assertions(1)
+    const req = { params: { username: 'wrong' } }
+    const res = { locals: { user: { username: 'test', isAdmin: false } } }
+    const next = (err) => {
+      expect(err instanceof UnauthorizedError).toBeTruthy()
+    }
+    ensureSelfOrAdmin(req, res, next)
+  })
+
+  test('unauth if anon', () => {
+    expect.assertions(1)
+    const req = { params: { username: 'test' } }
+    const res = { locals: {} }
+    const next = (err) => {
+      expect(err instanceof UnauthorizedError).toBeTruthy()
+    }
+    ensureSelfOrAdmin(req, res, next)
   })
 })

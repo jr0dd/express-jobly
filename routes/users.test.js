@@ -1,13 +1,15 @@
 import request from 'supertest'
 import { db } from '../db.js'
 import { app } from '../app.js'
-import { User } from '../models/user.js'
+import { User } from '../models/User.js'
 import {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
-  u1Token
+  u1Token,
+  u2Token,
+  adminToken
 } from './_testCommon.js'
 
 beforeAll(commonBeforeAll)
@@ -18,7 +20,7 @@ afterAll(commonAfterAll)
 /** ************************************ POST /users */
 
 describe('POST /users', () => {
-  test('works for users: create non-admin', async () => {
+  test('works for admin: create non-admin', async () => {
     const resp = await request(app)
       .post('/users')
       .send({
@@ -29,7 +31,7 @@ describe('POST /users', () => {
         email: 'new@email.com',
         isAdmin: false
       })
-      .set('authorization', `Bearer ${u1Token}`)
+      .set('authorization', `Bearer ${adminToken}`)
     expect(resp.statusCode).toEqual(201)
     expect(resp.body).toEqual({
       user: {
@@ -43,7 +45,7 @@ describe('POST /users', () => {
     })
   })
 
-  test('works for users: create admin', async () => {
+  test('works for admin: create admin', async () => {
     const resp = await request(app)
       .post('/users')
       .send({
@@ -54,7 +56,7 @@ describe('POST /users', () => {
         email: 'new@email.com',
         isAdmin: true
       })
-      .set('authorization', `Bearer ${u1Token}`)
+      .set('authorization', `Bearer ${adminToken}`)
     expect(resp.statusCode).toEqual(201)
     expect(resp.body).toEqual({
       user: {
@@ -66,6 +68,21 @@ describe('POST /users', () => {
       },
       token: expect.any(String)
     })
+  })
+
+  test('unauth for users', async () => {
+    const resp = await request(app)
+      .post('/users')
+      .send({
+        username: 'u-new',
+        firstName: 'First-new',
+        lastName: 'Last-newL',
+        password: 'password-new',
+        email: 'new@email.com',
+        isAdmin: true
+      })
+      .set('authorization', `Bearer ${u1Token}`)
+    expect(resp.statusCode).toEqual(401)
   })
 
   test('unauth for anon', async () => {
@@ -88,7 +105,7 @@ describe('POST /users', () => {
       .send({
         username: 'u-new'
       })
-      .set('authorization', `Bearer ${u1Token}`)
+      .set('authorization', `Bearer ${adminToken}`)
     expect(resp.statusCode).toEqual(400)
   })
 
@@ -103,7 +120,7 @@ describe('POST /users', () => {
         email: 'not-an-email',
         isAdmin: true
       })
-      .set('authorization', `Bearer ${u1Token}`)
+      .set('authorization', `Bearer ${adminToken}`)
     expect(resp.statusCode).toEqual(400)
   })
 })
@@ -111,10 +128,10 @@ describe('POST /users', () => {
 /** ************************************ GET /users */
 
 describe('GET /users', () => {
-  test('works for users', async () => {
+  test('works for admin', async () => {
     const resp = await request(app)
       .get('/users')
-      .set('authorization', `Bearer ${u1Token}`)
+      .set('authorization', `Bearer ${adminToken}`)
     expect(resp.body).toEqual({
       users: [
         {
@@ -142,6 +159,13 @@ describe('GET /users', () => {
     })
   })
 
+  test('unauth for users', async () => {
+    const resp = await request(app)
+      .get('/users')
+      .set('authorization', `Bearer ${u1Token}`)
+    expect(resp.statusCode).toEqual(401)
+  })
+
   test('unauth for anon', async () => {
     const resp = await request(app)
       .get('/users')
@@ -155,7 +179,7 @@ describe('GET /users', () => {
     await db.query('DROP TABLE users CASCADE')
     const resp = await request(app)
       .get('/users')
-      .set('authorization', `Bearer ${u1Token}`)
+      .set('authorization', `Bearer ${adminToken}`)
     expect(resp.statusCode).toEqual(500)
   })
 })
@@ -163,7 +187,22 @@ describe('GET /users', () => {
 /** ************************************ GET /users/:username */
 
 describe('GET /users/:username', () => {
-  test('works for users', async () => {
+  test('works for admin', async () => {
+    const resp = await request(app)
+      .get('/users/u1')
+      .set('authorization', `Bearer ${adminToken}`)
+    expect(resp.body).toEqual({
+      user: {
+        username: 'u1',
+        firstName: 'U1F',
+        lastName: 'U1L',
+        email: 'user1@user.com',
+        isAdmin: false
+      }
+    })
+  })
+
+  test('works for self', async () => {
     const resp = await request(app)
       .get('/users/u1')
       .set('authorization', `Bearer ${u1Token}`)
@@ -178,6 +217,13 @@ describe('GET /users/:username', () => {
     })
   })
 
+  test('unauth for others', async () => {
+    const resp = await request(app)
+      .get('/users/u1')
+      .set('authorization', `Bearer ${u2Token}`)
+    expect(resp.statusCode).toEqual(401)
+  })
+
   test('unauth for anon', async () => {
     const resp = await request(app)
       .get('/users/u1')
@@ -187,7 +233,7 @@ describe('GET /users/:username', () => {
   test('not found if user not found', async () => {
     const resp = await request(app)
       .get('/users/nope')
-      .set('authorization', `Bearer ${u1Token}`)
+      .set('authorization', `Bearer ${adminToken}`)
     expect(resp.statusCode).toEqual(404)
   })
 })
@@ -195,7 +241,25 @@ describe('GET /users/:username', () => {
 /** ************************************ PATCH /users/:username */
 
 describe('PATCH /users/:username', () => {
-  test('works for users', async () => {
+  test('works for admin', async () => {
+    const resp = await request(app)
+      .patch('/users/u1')
+      .send({
+        firstName: 'New'
+      })
+      .set('authorization', `Bearer ${adminToken}`)
+    expect(resp.body).toEqual({
+      user: {
+        username: 'u1',
+        firstName: 'New',
+        lastName: 'U1L',
+        email: 'user1@user.com',
+        isAdmin: false
+      }
+    })
+  })
+
+  test('works for self', async () => {
     const resp = await request(app)
       .patch('/users/u1')
       .send({
@@ -213,6 +277,16 @@ describe('PATCH /users/:username', () => {
     })
   })
 
+  test('unauth for others', async () => {
+    const resp = await request(app)
+      .patch('/users/u1')
+      .send({
+        firstName: 'New'
+      })
+      .set('authorization', `Bearer ${u2Token}`)
+    expect(resp.statusCode).toEqual(401)
+  })
+
   test('unauth for anon', async () => {
     const resp = await request(app)
       .patch('/users/u1')
@@ -228,7 +302,7 @@ describe('PATCH /users/:username', () => {
       .send({
         firstName: 'Nope'
       })
-      .set('authorization', `Bearer ${u1Token}`)
+      .set('authorization', `Bearer ${adminToken}`)
     expect(resp.statusCode).toEqual(404)
   })
 
@@ -238,7 +312,7 @@ describe('PATCH /users/:username', () => {
       .send({
         firstName: 42
       })
-      .set('authorization', `Bearer ${u1Token}`)
+      .set('authorization', `Bearer ${adminToken}`)
     expect(resp.statusCode).toEqual(400)
   })
 
@@ -248,7 +322,7 @@ describe('PATCH /users/:username', () => {
       .send({
         password: 'new-password'
       })
-      .set('authorization', `Bearer ${u1Token}`)
+      .set('authorization', `Bearer ${adminToken}`)
     expect(resp.body).toEqual({
       user: {
         username: 'u1',
@@ -266,11 +340,25 @@ describe('PATCH /users/:username', () => {
 /** ************************************ DELETE /users/:username */
 
 describe('DELETE /users/:username', () => {
-  test('works for users', async () => {
+  test('works for admin', async () => {
+    const resp = await request(app)
+      .delete('/users/u1')
+      .set('authorization', `Bearer ${adminToken}`)
+    expect(resp.body).toEqual({ deleted: 'u1' })
+  })
+
+  test('works for self', async () => {
     const resp = await request(app)
       .delete('/users/u1')
       .set('authorization', `Bearer ${u1Token}`)
     expect(resp.body).toEqual({ deleted: 'u1' })
+  })
+
+  test('unauth for others', async () => {
+    const resp = await request(app)
+      .delete('/users/u1')
+      .set("authorization", `Bearer ${u2Token}`)
+    expect(resp.statusCode).toEqual(401)
   })
 
   test('unauth for anon', async () => {
@@ -282,7 +370,7 @@ describe('DELETE /users/:username', () => {
   test('not found if user missing', async () => {
     const resp = await request(app)
       .delete('/users/nope')
-      .set('authorization', `Bearer ${u1Token}`)
+      .set('authorization', `Bearer ${adminToken}`)
     expect(resp.statusCode).toEqual(404)
   })
 })

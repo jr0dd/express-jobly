@@ -59,7 +59,6 @@ describe('create', () => {
 describe('findAll', () => {
   test('works: no filter', async () => {
     const companies = await Company.findAll()
-    console.log(companiesq)
     expect(companies).toEqual([
       {
         handle: 'c1',

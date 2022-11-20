@@ -2,7 +2,7 @@
 
 import jsonschema from 'jsonschema'
 import express from 'express'
-import { ensureLoggedIn } from '../middleware/auth.js'
+import { ensureAdmin } from '../middleware/auth.js'
 import { BadRequestError } from '../ExpressError.js'
 import { Company } from '../models/Company.js'
 import companyNewSchema from '../schemas/companyNew.json' assert { type : 'json' }
@@ -19,7 +19,7 @@ const router = new express.Router()
  * Authorization required: login
  */
 
-router.post('/', ensureLoggedIn, async (req, res, next) => {
+router.post('/', ensureAdmin, async (req, res, next) => {
   try {
     const validator = jsonschema.validate(req.body, companyNewSchema)
     if (!validator.valid) {
@@ -96,7 +96,7 @@ router.get('/:handle', async (req, res, next) => {
  * Authorization required: login
  */
 
-router.patch('/:handle', ensureLoggedIn, async (req, res, next) => {
+router.patch('/:handle', ensureAdmin, async (req, res, next) => {
   try {
     const validator = jsonschema.validate(req.body, companyUpdateSchema)
     if (!validator.valid) {
@@ -116,7 +116,7 @@ router.patch('/:handle', ensureLoggedIn, async (req, res, next) => {
  * Authorization: login
  */
 
-router.delete('/:handle', ensureLoggedIn, async (req, res, next) => {
+router.delete('/:handle', ensureAdmin, async (req, res, next) => {
   try {
     await Company.remove(req.params.handle)
     return res.json({ deleted: req.params.handle })

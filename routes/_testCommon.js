@@ -1,7 +1,7 @@
 import { db } from '../db.js'
-import { User } from '../models/user'
-import { Company } from '../models/company'
-import { createToken } from '../helpers/tokens'
+import { User } from '../models/User.js'
+import { Company } from '../models/Company.js'
+import { createToken } from '../helpers/tokens.js'
 
 const commonBeforeAll = async () => {
   // noinspection SqlWithoutWhere
@@ -73,11 +73,15 @@ const commonAfterAll = async () => {
 }
 
 const u1Token = createToken({ username: 'u1', isAdmin: false })
+const u2Token = createToken({ username: 'u2', isAdmin: false })
+const adminToken = createToken({ username: 'admin', isAdmin: true })
 
 export {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
-  u1Token
+  u1Token,
+  u2Token,
+  adminToken
 }

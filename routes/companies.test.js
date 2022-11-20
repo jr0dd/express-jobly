@@ -6,7 +6,8 @@ import {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
-  u1Token
+  u1Token,
+  adminToken
 } from './_testCommon.js'
 
 beforeAll(commonBeforeAll)
@@ -25,15 +26,30 @@ describe('POST /companies', () => {
     numEmployees: 10
   }
 
-  test('ok for users', async () => {
+  test('ok for admin', async () => {
     const resp = await request(app)
       .post('/companies')
       .send(newCompany)
-      .set('authorization', `Bearer ${u1Token}`)
+      .set('authorization', `Bearer ${adminToken}`)
     expect(resp.statusCode).toEqual(201)
     expect(resp.body).toEqual({
       company: newCompany
     })
+  })
+
+  test('unauth for user', async () => {
+    const resp = await request(app)
+        .post('/companies')
+        .send(newCompany)
+        .set('authorization', `Bearer ${u1Token}`)
+    expect(resp.statusCode).toEqual(401)
+  })
+
+  test('unauth for anon', async () => {
+    const resp = await request(app)
+        .post('/companies')
+        .send(newCompany)
+    expect(resp.statusCode).toEqual(401)
   })
 
   test('bad request with missing data', async () => {
@@ -43,7 +59,7 @@ describe('POST /companies', () => {
         handle: 'new',
         numEmployees: 10
       })
-      .set('authorization', `Bearer ${u1Token}`)
+      .set('authorization', `Bearer ${adminToken}`)
     expect(resp.statusCode).toEqual(400)
   })
 
@@ -54,7 +70,7 @@ describe('POST /companies', () => {
         ...newCompany,
         logoUrl: 'not-a-url'
       })
-      .set('authorization', `Bearer ${u1Token}`)
+      .set('authorization', `Bearer ${adminToken}`)
     expect(resp.statusCode).toEqual(400)
   })
 })
@@ -192,13 +208,13 @@ describe('GET /companies/:handle', () => {
 /** ************************************ PATCH /companies/:handle */
 
 describe('PATCH /companies/:handle', () => {
-  test('works for users', async () => {
+  test('works for admin', async () => {
     const resp = await request(app)
       .patch('/companies/c1')
       .send({
         name: 'C1-new'
       })
-      .set('authorization', `Bearer ${u1Token}`)
+      .set('authorization', `Bearer ${adminToken}`)
     expect(resp.body).toEqual({
       company: {
         handle: 'c1',
@@ -208,6 +224,16 @@ describe('PATCH /companies/:handle', () => {
         logoUrl: 'http://c1.img'
       }
     })
+  })
+
+  test('unauth for user', async () => {
+    const resp = await request(app)
+      .patch('/companies/c1')
+      .send({
+        name: 'C1-new'
+      })
+      .set('authorization', `Bearer ${u1Token}`)
+    expect(resp.statusCode).toEqual(401)
   })
 
   test('unauth for anon', async () => {
@@ -225,7 +251,7 @@ describe('PATCH /companies/:handle', () => {
       .send({
         name: 'new nope'
       })
-      .set('authorization', `Bearer ${u1Token}`)
+      .set('authorization', `Bearer ${adminToken}`)
     expect(resp.statusCode).toEqual(404)
   })
 
@@ -235,7 +261,7 @@ describe('PATCH /companies/:handle', () => {
       .send({
         handle: 'c1-new'
       })
-      .set('authorization', `Bearer ${u1Token}`)
+      .set('authorization', `Bearer ${adminToken}`)
     expect(resp.statusCode).toEqual(400)
   })
 
@@ -245,7 +271,7 @@ describe('PATCH /companies/:handle', () => {
       .send({
         logoUrl: 'not-a-url'
       })
-      .set('authorization', `Bearer ${u1Token}`)
+      .set('authorization', `Bearer ${adminToken}`)
     expect(resp.statusCode).toEqual(400)
   })
 })
@@ -253,11 +279,18 @@ describe('PATCH /companies/:handle', () => {
 /** ************************************ DELETE /companies/:handle */
 
 describe('DELETE /companies/:handle', () => {
-  test('works for users', async () => {
+  test('works for admin', async () => {
+    const resp = await request(app)
+      .delete('/companies/c1')
+      .set('authorization', `Bearer ${adminToken}`)
+    expect(resp.body).toEqual({ deleted: 'c1' })
+  })
+
+  test('unauth for user', async () => {
     const resp = await request(app)
       .delete('/companies/c1')
       .set('authorization', `Bearer ${u1Token}`)
-    expect(resp.body).toEqual({ deleted: 'c1' })
+    expect(resp.statusCode).toEqual(401)
   })
 
   test('unauth for anon', async () => {
@@ -269,7 +302,7 @@ describe('DELETE /companies/:handle', () => {
   test('not found for no such company', async () => {
     const resp = await request(app)
       .delete('/companies/nope')
-      .set('authorization', `Bearer ${u1Token}`)
+      .set('authorization', `Bearer ${adminToken}`)
     expect(resp.statusCode).toEqual(404)
   })
 })

@@ -4,7 +4,7 @@ import { SECRET_KEY } from '../config.js'
 
 describe('createToken', () => {
   test('works: not admin', () => {
-    const token = createToken({ username: 'test', is_admin: false })
+    const token = createToken({ username: 'test', isAdmin: false })
     const payload = jwt.verify(token, SECRET_KEY)
     expect(payload).toEqual({
       iat: expect.any(Number),

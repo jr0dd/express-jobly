@@ -2,7 +2,7 @@
 
 import express from 'express'
 import jsonschema from 'jsonschema'
-import { User } from '../models/user.js'
+import { User } from '../models/User.js'
 import { createToken } from '../helpers/tokens.js'
 import userAuthSchema from '../schemas/userAuth.json' assert { type : 'json' }
 import userRegisterSchema from '../schemas/userRegister.json' assert { type : 'json' }
