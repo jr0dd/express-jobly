@@ -8,6 +8,7 @@ import { authenticateJWT } from './middleware/auth.js'
 import { router as authRoutes } from './routes/auth.js'
 import { router as companiesRoutes } from './routes/companies.js'
 import { router as usersRoutes } from './routes/users.js'
+import { router as jobsRoutes } from './routes/jobs.js'
 const app = express()
 
 app.use(cors())
@@ -17,6 +18,7 @@ app.use(authenticateJWT)
 
 app.use('/auth', authRoutes)
 app.use('/companies', companiesRoutes)
+app.use('/jobs', jobsRoutes)
 app.use('/users', usersRoutes)
 
 /** Handle 404 errors -- this matches everything */

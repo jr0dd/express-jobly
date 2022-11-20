@@ -39,16 +39,16 @@ describe('POST /companies', () => {
 
   test('unauth for user', async () => {
     const resp = await request(app)
-        .post('/companies')
-        .send(newCompany)
-        .set('authorization', `Bearer ${u1Token}`)
+      .post('/companies')
+      .send(newCompany)
+      .set('authorization', `Bearer ${u1Token}`)
     expect(resp.statusCode).toEqual(401)
   })
 
   test('unauth for anon', async () => {
     const resp = await request(app)
-        .post('/companies')
-        .send(newCompany)
+      .post('/companies')
+      .send(newCompany)
     expect(resp.statusCode).toEqual(401)
   })
 

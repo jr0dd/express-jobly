@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt'
 import { db } from '../db.js'
 import { BCRYPT_WORK_FACTOR } from '../config.js'
+const jobIds = []
 
 const commonBeforeAll = async () => {
   // noinspection SqlWithoutWhere
@@ -28,6 +29,16 @@ const commonBeforeAll = async () => {
     await bcrypt.hash('password1', BCRYPT_WORK_FACTOR),
     await bcrypt.hash('password2', BCRYPT_WORK_FACTOR)
   ])
+
+  const jobs = await db.query(`
+    INSERT INTO jobs (title, salary, equity, company_handle)
+    VALUES
+      ('Job1', 100, '0.1', 'c1'),
+      ('Job2', 200, '0.2', 'c1'),
+      ('Job3', 300, '0', 'c1'),
+      ('Job4', NULL, NULL, 'c1')
+    RETURNING id`)
+  jobIds.splice(0, 0, ...jobs.rows.map(r => r.id))
 }
 
 const commonBeforeEach = async () => {
@@ -46,5 +57,6 @@ export {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
-  commonAfterAll
+  commonAfterAll,
+  jobIds
 }

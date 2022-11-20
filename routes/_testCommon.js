@@ -1,7 +1,9 @@
 import { db } from '../db.js'
 import { User } from '../models/User.js'
 import { Company } from '../models/Company.js'
+import { Job } from '../models/Job.js'
 import { createToken } from '../helpers/tokens.js'
+const jobIds = []
 
 const commonBeforeAll = async () => {
   // noinspection SqlWithoutWhere
@@ -58,6 +60,13 @@ const commonBeforeAll = async () => {
     password: 'password3',
     isAdmin: false
   })
+
+  jobIds[0] = (await Job.create(
+    { title: 'J1', salary: 100, equity: '0.1', companyHandle: 'c1' })).id
+  jobIds[1] = (await Job.create(
+    { title: 'J2', salary: 200, equity: '0.2', companyHandle: 'c1' })).id
+  jobIds[2] = (await Job.create(
+    { title: 'J3', salary: 300, equity: null, companyHandle: 'c1' })).id
 }
 
 const commonBeforeEach = async () => {
@@ -83,5 +92,6 @@ export {
   commonAfterAll,
   u1Token,
   u2Token,
-  adminToken
+  adminToken,
+  jobIds
 }
