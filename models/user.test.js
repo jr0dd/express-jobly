@@ -9,7 +9,8 @@ import {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
-  commonAfterAll
+  commonAfterAll,
+  jobIds
 } from './_testCommon.js'
 
 beforeAll(commonBeforeAll)
@@ -137,7 +138,8 @@ describe('get', () => {
       firstName: 'U1F',
       lastName: 'U1L',
       email: 'u1@email.com',
-      isAdmin: false
+      isAdmin: false,
+      applications: [jobIds[0]]
     })
   })
 

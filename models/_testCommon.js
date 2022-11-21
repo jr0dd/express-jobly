@@ -39,6 +39,11 @@ const commonBeforeAll = async () => {
       ('Job4', NULL, NULL, 'c1')
     RETURNING id`)
   jobIds.splice(0, 0, ...jobs.rows.map(r => r.id))
+
+  await db.query(`
+        INSERT INTO applications(username, job_id)
+        VALUES ('u1', $1)`,
+  [jobIds[0]])
 }
 
 const commonBeforeEach = async () => {

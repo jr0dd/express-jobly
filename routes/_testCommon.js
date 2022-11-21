@@ -67,6 +67,8 @@ const commonBeforeAll = async () => {
     { title: 'J2', salary: 200, equity: '0.2', companyHandle: 'c1' })).id
   jobIds[2] = (await Job.create(
     { title: 'J3', salary: 300, equity: null, companyHandle: 'c1' })).id
+
+  await User.application('u1', jobIds[0])
 }
 
 const commonBeforeEach = async () => {

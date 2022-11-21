@@ -9,7 +9,8 @@ import {
   commonAfterAll,
   u1Token,
   u2Token,
-  adminToken
+  adminToken,
+  jobIds
 } from './_testCommon.js'
 
 beforeAll(commonBeforeAll)
@@ -197,7 +198,8 @@ describe('GET /users/:username', () => {
         firstName: 'U1F',
         lastName: 'U1L',
         email: 'user1@user.com',
-        isAdmin: false
+        isAdmin: false,
+        applications: [jobIds[0]]
       }
     })
   })
@@ -212,7 +214,8 @@ describe('GET /users/:username', () => {
         firstName: 'U1F',
         lastName: 'U1L',
         email: 'user1@user.com',
-        isAdmin: false
+        isAdmin: false,
+        applications: [jobIds[0]]
       }
     })
   })
@@ -370,6 +373,51 @@ describe('DELETE /users/:username', () => {
   test('not found if user missing', async () => {
     const resp = await request(app)
       .delete('/users/nope')
+      .set('authorization', `Bearer ${adminToken}`)
+    expect(resp.statusCode).toEqual(404)
+  })
+})
+
+/** ************************************ POST /users/:username/jobs/:id */
+
+describe('POST /users/:username/jobs/:id', () => {
+  test('works for admin', async () => {
+    const resp = await request(app)
+      .post(`/users/u1/jobs/${jobIds[1]}`)
+      .set('authorization', `Bearer ${adminToken}`)
+    expect(resp.body).toEqual({ applied: jobIds[1] })
+  })
+
+  test('works for self', async () => {
+    const resp = await request(app)
+      .post(`/users/u1/jobs/${jobIds[1]}`)
+      .set('authorization', `Bearer ${u1Token}`)
+    expect(resp.body).toEqual({ applied: jobIds[1] })
+  })
+
+  test('unauth for others', async () => {
+    const resp = await request(app)
+      .post(`/users/u1/jobs/${jobIds[1]}`)
+      .set('authorization', `Bearer ${u2Token}`)
+    expect(resp.statusCode).toEqual(401)
+  })
+
+  test('unauth for anon', async () => {
+    const resp = await request(app)
+      .post(`/users/u1/jobs/${jobIds[1]}`)
+    expect(resp.statusCode).toEqual(401)
+  })
+
+  test('not found for no such username', async () => {
+    const resp = await request(app)
+      .post(`/users/nope/jobs/${jobIds[1]}`)
+      .set('authorization', `Bearer ${adminToken}`)
+    expect(resp.statusCode).toEqual(404)
+  })
+
+  test('bad request invalid job', async () => {
+    const resp = await request(app)
+      .post('/users/u1/jobs/0')
       .set('authorization', `Bearer ${adminToken}`)
     expect(resp.statusCode).toEqual(404)
   })
